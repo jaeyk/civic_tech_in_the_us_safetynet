@@ -56,7 +56,7 @@ ggrepel::geom_text_repel(size = 5, angle = 0.2, hjust = 0, max.overlaps = Inf)
 ```
 
 ```{r}
-png(here("plots", "timeline.png"), width = 1600, height = 1300, res = 120)
+png(here("plots", "timeline.png"), width = 1700, height = 1300, res = 120)
 
 ggplot() +
   geom_point(data = timeline, aes(x = found_year, y = level, color = level), size = 0.01, alpha = 0) +
@@ -85,7 +85,10 @@ ggplot() +
     plot.title = element_text(size = 20, face = "bold"),
     axis.text.x = element_text(size = 16),
     legend.position = "none"
-  )
+  ) +
+  geom_vline(xintercept = 2013, linetype = "dashed", color = "red", size = 1) +
+  annotate("text", x = 2013.3, y = 2, label = "HealthCare.gov launch failure", color = "red", size = 5, angle = 90, hjust = 0) 
+
 
 dev.off()
 ```
