@@ -1,0 +1,91 @@
+---
+title: "data visualization"
+author: "Jae Yeon Kim"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+if (!require("pacman")) install.packages("pacman")
+pacman::p_load(here, glue, tidyverse, ggrepel, ggtext)
+```
+
+```{r}
+# Load data
+timeline <- read.csv(here("raw_data", "civic_tech_timeline.csv"))
+
+unique(timeline$level)
+```
+
+```{r}
+# Rename level
+timeline$level <- recode(timeline$level, `Civic Tech Org` = "Civic Tech Nonprofit/Firm")
+
+unique(timeline$level)
+```
+
+```{r}
+# Define custom colors
+custom_colors <- c(
+  "Federal" = "#013220",       # Very Dark Olive Green
+  "State"   = "#228B22",       # Forest Green
+  "Local"   = "#3CB371",       # Medium Sea Green
+  "Civic Tech Nonprofit/Firm" = "#1E90FF",  # Blue
+  "Academic" = "#FFA500",    # Orange
+  "Foundation" = "#8A2BE2"   # Purple
+)
+```
+
+```{r}
+# Define factor levels for y-axis
+sector_levels <- c("Federal", #1 
+                   "State", #2
+                   "Local", #3
+                   "Civic Tech Nonprofit/Firm", #4 
+                   "Academic", #5
+                   "Foundation") #6
+
+timeline$level <- factor(timeline$level, levels = sector_levels)
+
+colored_y_labels <- sapply(names(custom_colors), function(x) {
+  paste0("<span style='color:", custom_colors[x], "'>", x, "</span>")
+})
+```
+
+```{r}
+ggrepel::geom_text_repel(size = 5, angle = 0.2, hjust = 0, max.overlaps = Inf)
+```
+
+```{r}
+png(here("plots", "timeline.png"), width = 1600, height = 1300, res = 120)
+
+ggplot() +
+  geom_point(data = timeline, aes(x = found_year, y = level, color = level), size = 0.01, alpha = 0) +
+  ggrepel::geom_text_repel(
+    data = timeline,
+    aes(x = found_year, y = level, label = org_name, color = level),
+    size = 4, angle = 0, hjust = 0,
+    max.overlaps = Inf,
+    force = 2, force_pull = 0.1,
+    box.padding = 0.7, point.padding = 0.5,
+    min.segment.length = 0,
+    show.legend = FALSE
+  ) +
+  scale_color_manual(values = custom_colors) +
+  scale_y_discrete(
+    limits = rev(names(custom_colors)),  # reverse for plotting
+    labels = rev(colored_y_labels)       # match reversed order
+  ) +
+  theme_minimal(base_size = 18) +
+  labs(
+    title = "Timeline of Civic Tech in the U.S. Safety Net",
+    x = "Year", y = ""
+  ) +
+  theme(
+    axis.text.y = ggtext::element_markdown(size = 16),
+    plot.title = element_text(size = 20, face = "bold"),
+    axis.text.x = element_text(size = 16),
+    legend.position = "none"
+  )
+
+dev.off()
+```
