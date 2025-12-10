@@ -31,6 +31,20 @@ ggsave(here("plots", "independent_teams_performance.png"), width = 10, height = 
 
 # Non-independent teams 
 
+# Let $p$ be the marginal failure rate for each team.
+# 
+# Let $\rho \in [0,1]$ control how correlated the teams are.
+# 
+# - If $\rho = 0$, teams are independent.  
+# - If $\rho = 1$, teams are “clones” that always all succeed or all fail together.
+# 
+# In each trial:
+#   
+#   1. With probability $\rho$ we draw one Bernoulli outcome and give it to all teams (perfectly correlated case).  
+# 2. With probability $1 - \rho$ we draw independent Bernoulli outcomes for each team.
+# 
+# This setup keeps each teams failure probability at $p$ but induces positive correlation across teams.
+
 simulate_parallel_correlated <- function(p, n, rho = 0, trials = 10000) {
   success_any <- logical(trials)
   
